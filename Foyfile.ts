@@ -37,8 +37,8 @@ task('start', async (ctx) => {
   )
 
   async function saveJson() {
-    await fs.outputJson(pagesJson, Array.from(pages.entries()))
-    await fs.outputJson(assetsJson, Array.from(assets))
+    await fs.outputJson(pagesJson, Array.from(pages.entries()), { space: 2})
+    await fs.outputJson(assetsJson, Array.from(assets), { space: 2 })
   }
   async function fetchPage({ url, title }) {
     if (pages.has(url)) return
@@ -175,4 +175,13 @@ task('tar', async (ctx) => {
 })
 task('untar', async (ctx) => {
   await ctx.exec(`tar -x --use-compress-program=pigz -f ./宣宾.tar.gz`)
+})
+
+task('pages', async ctx => {
+  let f = './宣宾/pages.json'
+  let pages = await fs.readJson(f)
+  pages.forEach(([k, v]) => {
+    v.title = v.title.trim()
+  })
+  await fs.outputJson(f, pages, { space: 2 })
 })
