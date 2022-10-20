@@ -1,0 +1,17 @@
+logs
+*.log
+npm-debug.log*
+.DS_Store
+
+coverage
+node_modules
+build
+public/static
+.env.*.local
+cache
+prisma/databases
+public/images
+images.tar.gz
+bookInfo.tar.gz
+宣宾
+宣宾.tar.gz
