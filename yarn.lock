@@ -295,10 +295,10 @@ form-data@^4.0.0:
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
-foy@^0.2.17:
-  version "0.2.17"
-  resolved "https://registry.npmmirror.com/foy/-/foy-0.2.17.tgz#c70662ddc6b7f7c26bd242e2106ca361e427cbd2"
-  integrity sha512-8V1kazmWVIFK5g9RiD+P/fMfCBvtZKVLbcpT5euZyKYfn5imhbrF1znRKqrAVmY9oXnW3KBwJC7NFmYSujivRw==
+foy@^0.2.18:
+  version "0.2.18"
+  resolved "https://registry.npmmirror.com/foy/-/foy-0.2.18.tgz#83449ec138b85941967c9fa46fe6153690a97699"
+  integrity sha512-mLwlMJQ+pNpDyRqjVC3yqAK6hXMHE6rG8beyxwbV9koQ/F5NTiCNwdYuFsfLT8gI9zYdZvK9NyGZDk4TGDAEGA==
   dependencies:
     cac "^6.6.1"
     chalk "^4.1.0"

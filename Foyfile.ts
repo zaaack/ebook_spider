@@ -2,7 +2,7 @@ import { task, desc, option, fs, logger, setGlobalOptions } from 'foy'
 import crypto from 'crypto'
 import cheerio, { load } from 'cheerio'
 import axios from 'axios'
-import { join } from 'path'
+import { basename, join } from 'path'
 setGlobalOptions({ loading: false })
 function hash(u: string) {
   return crypto.createHash('md5').update(u).digest('base64url')
@@ -12,7 +12,7 @@ function url2page(u: string, ext = '.html') {
   return hash(u) + ext
 }
 function save(f: string, data: any) {
-  if (fs.existsSync(f)) return
+  // if (fs.existsSync(f)) return
   return fs.outputFile(f, data)
 }
 function normalUrl(u?: string) {
@@ -22,7 +22,11 @@ function normalUrl(u?: string) {
 }
 
 const conf = {
-  url: 'https://mp.weixin.qq.com/s/vDV9cZtYBnV4AcuFTdfBNw',
+  // url: 'https://mp.weixin.qq.com/s/vDV9cZtYBnV4AcuFTdfBNw', //  宣宾老师×形法感悟和经验集锦
+  // url: 'https://mp.weixin.qq.com/s/Y0Fu6FNd4KN3wHCnzGC9Yg', // 火柴棒医生手记
+  // url: 'https://mp.weixin.qq.com/s/t45XaHYHbITLgXX0nLMfYg', //易安、刘凤民、牛先明等人体×形平衡法实践分享目录
+  // url: 'https://mp.weixin.qq.com/s/0KnnI-D-PNL6Pwj0BpnCpg', //《×形法疗效反馈》目录
+  url: 'https://mp.weixin.qq.com/s/D_lNwzZo3EZ0DXwHAwZP2Q', // 《人体×形平衡法》目录
   title: '',
   dir: './宣宾',
 }
@@ -57,7 +61,7 @@ task('start', async (ctx) => {
           return
         let title = $(e).text()
         $(e).attr('href', `./${url2page(remoteUrl)}`)
-        // await fetchPage({ url: remoteUrl, title })
+        await fetchPage({ url: remoteUrl, title })
       })
     let imgTasks = $('img')
       .toArray()
@@ -69,9 +73,10 @@ task('start', async (ctx) => {
         $(e).attr(
           'style',
           $(e)
-            .attr('style')
-            ?.replace(/display\s*:\s*none\s*;?/g, '')
+          .attr('style')
+          ?.replace(/display\s*:\s*none\s*;?/g, '')
         )
+        // 即使存在也要更新html外联
         if (assets.has(remoteUrl)) return
         assets.add(remoteUrl)
         let data = await (
@@ -86,6 +91,7 @@ task('start', async (ctx) => {
         if (!remoteUrl) return
         let file = `${conf.dir}/html/${url2page(remoteUrl, '.css')}`
         $(e).attr('href', `./${url2page(remoteUrl, '.css')}`)
+        // 即使存在也要更新html外联
         if (assets.has(remoteUrl)) return
         assets.add(remoteUrl)
         let data = await (await axios.get(remoteUrl)).data
@@ -101,11 +107,15 @@ task('start', async (ctx) => {
       title: ($('#activity-name').text() || title).trim(),
       file,
     })
-    $('link[rel="mask-icon"]').remove()
-    $('link[rel="shortcut"]').remove()
-    $('link[rel="apple-touch-icon-precomposed"]').remove()
-    $('link[rel="modulepreload"]').remove()
-    $('link["dns-prefetch"]').remove()
+    try {
+      $('link[rel="mask-icon"]').remove()
+      $('link[rel="shortcut"]').remove()
+      $('link[rel="apple-touch-icon-precomposed"]').remove()
+      $('link[rel="modulepreload"]').remove()
+      $('link["dns-prefetch"]').remove()
+    } catch (error) {
+      logger.warn(error)
+    }
     await save(file, $.html())
     await saveJson()
     logger.info('end url:', url)
@@ -184,4 +194,17 @@ task('pages', async ctx => {
     v.title = v.title.trim()
   })
   await fs.outputJson(f, pages, { space: 2 })
+})
+task('epubee', async ctx => {
+    const dir = '/mnt/e/阿里云盘/ePUBee🐝整站电子书500G'
+    const files: {name: string, path: string}[] = []
+    await fs.iter(dir, (path, s) => {
+      if (s.isFile() && path.endsWith('.epub')) {
+        files.push({
+          name: basename(path, '.epub'),
+          path: path.replace(dir, '.')
+        })
+      }
+    })
+    await fs.outputJson(join(dir, 'books.json'), files)
 })
